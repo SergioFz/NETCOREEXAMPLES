@@ -9,8 +9,10 @@ using WebApiExample.Models;
 
 namespace WebApiExample.Controllers
 {
-    [ApiController]
-    //[Route("api/[controller]")]
+
+    [ApiController] 
+    [Route("api/[controller]")]
+
     public class CustomerController : ControllerBase
     {
 
