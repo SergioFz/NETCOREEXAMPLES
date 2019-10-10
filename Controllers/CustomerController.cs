@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace WebApiExample.Controllers
 {
-    [ApiController]
+    [ApiController] 
     [Route("api/[controller]")]
     public class CustomerController : ControllerBase
     {
