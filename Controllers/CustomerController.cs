@@ -10,7 +10,7 @@ using WebApiExample.Models;
 namespace WebApiExample.Controllers
 {
     [ApiController]
-    //[Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class CustomerController : ControllerBase
     {
 
@@ -32,25 +32,30 @@ namespace WebApiExample.Controllers
         }
 
 
-        [HttpGet("api/customer/{id}")]
-        public Customer GetOne([FromRoute] long id){
+        //[HttpGet("api/customer/{id}")]
+        [HttpGet("{id}")]
+        [Produces("application/json")]
+        public IActionResult GetOne([FromRoute] long id){
 
             foreach (Customer customer in this.customers){
                 if (customer.Id == id){
-                    return customer;
+                    return base.Ok(customer);
                 }
             }
-            return null;
+            //base.NotFound()
+            return new NotFoundObjectResult("Could not find resource");
         }
 
-        [HttpGet("api/customer/")]
-        public List<Customer> GetAll(){
-            return this.customers;
+        //[HttpGet("api/customer/")]
+        [HttpGet]
+        public IActionResult GetAll(){
+            return Ok(this.customers);
         }
 
 
-        [HttpPost("api/customer")]
-        public Customer Create([FromBody] Customer newCustomer){
+        //[HttpPost("api/customer")]
+        [HttpPost]
+        public IActionResult Create([FromBody] Customer newCustomer){
             // CustomerPost newCustomerPost = new CustomerPost{
             //     Id= this.customerPost.Count + 1,
             //     FirstName="John",
@@ -59,19 +64,28 @@ namespace WebApiExample.Controllers
             // };
 
             newCustomer.Id = customers.Count + 1;
+            if(ModelState.IsValid)
+            {
             this.customers.Add(newCustomer);
             foreach(Customer customer in this.customers){
                 if(customer.Id == newCustomer.Id){
-                    return customer;
+                    return CreatedAtAction("GetOne", new { customer = 1 });
                 }
             }
-            return null;
+            return base.StatusCode(500, new { errorMessage = "no store value jk"});
+        }
+        else{
+            return base.ValidationProblem();
+        }
             // this.customerPost.Add(newCustomerPost);
             // return "Created";
         }
 
-        [HttpPut("api/customer/{id}")]
-        public string Update([FromRoute] long id, [FromBody] Customer updatedCustomer){
+        //[HttpPut("api/customer/{id}")]
+        [HttpPut("{id}")]
+        [Consumes("application/json")]
+        
+        public IActionResult Update([FromRoute] long id, [FromBody] Customer updatedCustomer){
             foreach(Customer customer in customers){
                 if (customer.Id == id) {
                     customer.FirstName = updatedCustomer.FirstName;
@@ -81,18 +95,19 @@ namespace WebApiExample.Controllers
             }
 
 
-            return "simonatoña";
+            return NoContent();
         }
 
-        [HttpDelete("api/customer/{id}")]
-        public string Delete([FromRoute] long id){
+        //[HttpDelete("api/customer/{id}")]
+        [HttpDelete("{id}")]
+        public IActionResult Delete([FromRoute] long id){
             foreach(Customer customer in customers) {
                 if (customer.Id == id){
                     customers.Remove(customer);
-                    break;
+                    return StatusCode(410);
                 }
             }
-            return "BYEBYE";
+            return NotFound();
         }
     }
 }

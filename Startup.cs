@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace WebApiExample
 {
@@ -31,10 +32,31 @@ namespace WebApiExample
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
+
+            // app.Map("/hello", app => {
+            //     app.MapWhen( httpContext => 
+            //         context.Request.Query.ContainsKey("name"), app => app.Run(async context => {
+            //             await context.Response.Body.WriteAsync("hello from the other side" + context)
+            //         })
+            //      )
+            // } );
+
+           app.Map("/hello", 
+            appB => {
+                appB.MapWhen(context => context.Request.Query.ContainsKey("name"), 
+                appB => appB.Run(async context => {
+                    var name = context.Request.Query["name"];
+                    await context.Response.WriteAsync($"Hello {name}!");
+                }));
+            });
+
+
+
+
+            // if (env.IsDevelopment())
+            // {
+            //     app.UseDeveloperExceptionPage();
+            // }
 
             app.UseHttpsRedirection();
 
